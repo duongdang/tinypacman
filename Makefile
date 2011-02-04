@@ -1,16 +1,18 @@
 # Compilation of SOT
 
-ROOT           = 	/home/nddang/src/sotpy
-GITJRL         = 	ssh://git@github.com/jrl-umi3218
-GITLAAS        = 	ssh://git@github.com/laas
-INSTALL_PREFIX =	/local/nddang/profiles/sotpy/install/unstable
-BOOST_ROOT     =        /local/nddang/profiles/sotpy/install/stable
+ROOT                 = 	/home/nddang/src/sotpy
+GITJRL               = 	ssh://git@github.com/jrl-umi3218
+GITLAAS              = 	ssh://git@github.com/laas
+INSTALL_PREFIX       =	/local/nddang/profiles/sotpy/install/unstable
+BOOST_ROOT           =  /local/nddang/profiles/sotpy/install/stable
+COMMON_CMAKE_OPTS    =  -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=Debug
+
 all: hpp_template_corba dynamic_graph dynamic_graph_python sot_core \
 	sot_dynamic dynamic_graph_tutorial
 
 build_all: \
-	jrl_mal_configure jrl_mal \
 	jrl_mathtools_configure jrl_mathtools \
+	jrl_mal_configure jrl_mal \
 	hpp_template_corba_configure hpp_template_corba \
 	dynamic_graph_configure dynamic_graph \
 	dynamic_graph_python_configure dynamic_graph_python \
@@ -188,40 +190,40 @@ configure: hpp_template_corba_configure \
 
 jrl_mal_configure:
 	mkdir -p ${ROOT}/jrl-mal/_build
-	cd ${ROOT}/jrl-mal/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug ..
+	cd ${ROOT}/jrl-mal/_build; cmake ${COMMON_CMAKE_OPTS} -DSMALLMATRIX=jrl-mathtools  ..
 
 jrl_mathtools_configure:
 	mkdir -p ${ROOT}/jrl-mathtools/_build
-	cd ${ROOT}/jrl-mathtools/_build; cmake cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug ..
+	cd ${ROOT}/jrl-mathtools/_build; cmake cmake  ..
 
 hpp_template_corba_configure:
 	mkdir -p ${ROOT}/hpp-template-corba/_build
-	cd ${ROOT}/hpp-template-corba/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug ..
+	cd ${ROOT}/hpp-template-corba/_build; cmake ${COMMON_CMAKE_OPTS} ..
 
 dynamic_graph_configure:
 	mkdir -p ${ROOT}/dynamic-graph/_build
-	cd ${ROOT}/dynamic-graph/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/dynamic-graph/_build; cmake ${COMMON_CMAKE_OPTS}  -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
 
 dynamic_graph_python_configure:
 	mkdir -p ${ROOT}/dynamic-graph-python/_build
-	cd ${ROOT}/dynamic-graph-python/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/dynamic-graph-python/_build; cmake ${COMMON_CMAKE_OPTS}  -DPROJECT_VERSION=1.99 ..
 
 dynamic_graph_corba_configure:
 	mkdir -p ${ROOT}/dynamic-graph-corba/_build
-	cd ${ROOT}/dynamic-graph-corba/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/dynamic-graph-corba/_build; cmake ${COMMON_CMAKE_OPTS} -DPROJECT_VERSION=1.99 ..
 
 sot_core_configure:
 	mkdir -p ${ROOT}/sot-core/_build
-	cd ${ROOT}/sot-core/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/sot-core/_build; cmake ${COMMON_CMAKE_OPTS} -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
 
 sot_dynamic_configure:
 	mkdir -p ${ROOT}/sot-dynamic/_build
-	cd ${ROOT}/sot-dynamic/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/sot-dynamic/_build; cmake ${COMMON_CMAKE_OPTS} -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
 
 sot_openhrp_configure:
 	mkdir -p ${ROOT}/sot-openhrp/_build
-	cd ${ROOT}/sot-openhrp/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DOPENHRP3_HOME=${DEVEL_DIR}/stable/OpenHRP -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/sot-openhrp/_build; cmake ${COMMON_CMAKE_OPTS} -DOPENHRP3_HOME=${DEVEL_DIR}/stable/OpenHRP -DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99 ..
 
 dynamic_graph_tutorial_configure:
 	mkdir -p ${ROOT}/dynamic-graph-tutorial/_build
-	cd ${ROOT}/dynamic-graph-tutorial/_build; cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Debug -DPROJECT_VERSION=1.99 ..
+	cd ${ROOT}/dynamic-graph-tutorial/_build; cmake ${COMMON_CMAKE_OPTS} -DPROJECT_VERSION=1.99 ..
