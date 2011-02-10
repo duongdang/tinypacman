@@ -147,12 +147,13 @@ def main():
         s += """%s_very_clean:
 \tcd ${ROOT}/%s/_build && rm -rf *
 """%(alpha_name, name)
-        s += 1*"\n"
 
         # update
         s += """%s_update:
 \tcd ${ROOT}/%s/_build; git diff --quiet %s ..origin/%s -- || (git pull && make install)
 """%(alpha_name, name, branch, branch)
+
+        s += 1*"\n"
 
 
 
