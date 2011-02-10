@@ -82,49 +82,24 @@ def main():
         s += "%-30s = %s\n"%(key,value)
     s += 2*"\n"
 
-    s += "all:\\\n"
-    for i,pkg in enumerate(pkgs):
-        s += " %s"%valid_var(pkg[0])
-        if i < len(pkgs)-1:
-            s += " \\\n"
-    s += 2*"\n"
+    s += "all: update\n"
 
     s += "build_all:\\\n"
     for i,pkg in enumerate(pkgs):
-        s += " %s_configure %s"%(valid_var(pkg[0]),valid_var(pkg[0]))
+        s += "    %s_configure %s"%(valid_var(pkg[0]),valid_var(pkg[0]))
         if i < len(pkgs)-1:
             s += " \\\n"
     s += 2*"\n"
 
-    s += "checkout:\\\n"
-    for i,pkg in enumerate(pkgs):
-        s += " %s_checkout"%(valid_var(pkg[0]))
-        if i < len(pkgs)-1:
-            s += " \\\n"
-    s += 2*"\n"
+    for action in ("checkout", "pull", "clean",
+                   "very_clean", "update"):
 
-
-    s += "pull:\\\n"
-    for i,pkg in enumerate(pkgs):
-        s += " %s_pull"%(valid_var(pkg[0]))
-        if i < len(pkgs)-1:
-            s += " \\\n"
-    s += 2*"\n"
-
-    s += "clean:\\\n"
-    for i,pkg in enumerate(pkgs):
-        s += " %s_clean"%(valid_var(pkg[0]))
-        if i < len(pkgs)-1:
-            s += " \\\n"
-    s += 2*"\n"
-
-    s += "very_clean:\\\n"
-    for i,pkg in enumerate(pkgs):
-        s += " %s_very_clean"%(valid_var(pkg[0]))
-        if i < len(pkgs)-1:
-            s += " \\\n"
-    s += 2*"\n"
-
+        s += "%s:\\\n"%action
+        for i,pkg in enumerate(pkgs):
+            s += "    %s_%s"%(valid_var(pkg[0]),action)
+            if i < len(pkgs)-1:
+                s += " \\\n"
+        s += 2*"\n"
 
     for pkg in pkgs:
         name = pkg[0]
@@ -135,6 +110,12 @@ def main():
 \tcd ${ROOT}/%s/_build; make install
 """%(alpha_name, name)
 
+        cmake_opt = ""
+        for key, value in cmake_opts.items():
+            if re.match(r"%s"%key, name):
+                cmake_opt += "%s "%value
+
+        # checkout
         if branch != 'master':
             s += """%s_checkout:
 \tcd ${ROOT}; git clone --recursive %s; \\
@@ -145,28 +126,35 @@ def main():
             s += """%s_checkout:
 \tcd ${ROOT}; git clone --recursive %s
 """%(alpha_name, gituri)
-        cmake_opt = ""
-        for key, value in cmake_opts.items():
-            if re.match(r"%s"%key, name):
-                cmake_opt += "%s "%value
 
+        # pull
         s += """%s_pull:
-\tcd ${ROOT}/%s/; git pull; git submodule update
+\tcd ${ROOT}/%s/  && git pull && git submodule update
 """%(alpha_name, name)
 
+        # configure
         s += """%s_configure:
 \tmkdir -p ${ROOT}/%s/_build
-\tcd ${ROOT}/%s/_build; cmake %s ..
+\tcd ${ROOT}/%s/_build && cmake %s ..
 """%(alpha_name, name, name, cmake_opt)
 
+        # clean
         s += """%s_clean:
-\tcd ${ROOT}/%s/_build; make clean
+\tcd ${ROOT}/%s/_build && make clean
 """%(alpha_name, name)
 
+        # very_clean
         s += """%s_very_clean:
-\tcd ${ROOT}/%s/_build; rm -rf *
+\tcd ${ROOT}/%s/_build && rm -rf *
 """%(alpha_name, name)
         s += 1*"\n"
+
+        # update
+        s += """%s_update:
+\tcd ${ROOT}/%s/_build; git diff --quiet %s ..origin/%s -- || (git pull && make install)
+"""%(alpha_name, name, branch, branch)
+
+
 
     f = open("Makefile","w")
     f.write(s)
