@@ -16,7 +16,7 @@ cmake_opts = { ".*" : "-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} "+
                }
 
 pkgs = [ ('jrl-mathtools',            '${GITJRL}',         'master'),
-         ('jrl-mal' ,                 '${GITJRL}',         'master'),
+         ('jrl-mal' ,                 '${GITJRL}',         'topic/python'),
          ('hpp-template-corba',       '${GITLAAS}',        'master'),
          ('dynamic-graph',            '${GITJRL}',         'topic/proto-command'),
          ('dynamic-graph-python',     '${GITJRL}',         'topic/jrl-mal'),
@@ -25,7 +25,7 @@ pkgs = [ ('jrl-mathtools',            '${GITJRL}',         'master'),
          ('abstract-robot-dynamics',  '${GITLAAS}',        'master'),
          ('jrl-dynamics',             '${GITJRL}',         'master'),
          ('hrp2Dynamics',             '${GITSOFTS}',       'master'),
-         ('hrp2_10',                  '${GITSOFTS}',       'master'),
+         ('hrp2_10',                  '${GITSOFTS}',       'topic/python'),
          ('hrp2-10-optimized',        '${GITSOFTS}/robots','master'),
          ('hrp2_14',                  '${GITSOFTS}',       'master'),
          ('sot-dynamic',              '${GITJRL}',         'topic/python'),

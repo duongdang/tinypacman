@@ -27,10 +27,15 @@ def main():
                       action="store_true", dest="verbose", default=False,
                       help="be verbose")
 
-    parser.add_option("-r", "--root",
+    parser.add_option("-r", "--src-root",
                       action="store", type="str",
-                      dest="root", default=os.path.abspath(os.path.dirname(__file__)),
-                      help="root folder of source")
+                      dest="src_root", default=os.path.abspath(os.path.dirname(__file__)),
+                      help="root directory for source. Default to current directory")
+
+    parser.add_option("--build-root",
+                      action="store", type="str",
+                      dest="build_root", 
+                      help="root directory for builds. Default to SRC_ROOT")
 
     parser.add_option("-p", "--prefix",
                       action="store", type="str",
@@ -49,8 +54,8 @@ def main():
 
     parser.add_option("-o", "--output",
                       action="store", type="str",
-                      dest="output", default="ROOT/Makefile",
-                      help="output Makefile (default : $ROOT/Makefile)")
+                      dest="output", default="SRC_ROOT/Makefile",
+                      help="output Makefile (default : SRC_ROOT/Makefile)")
 
     parser.add_option("--openhrp-home",
                       action="store", type="str",
@@ -61,8 +66,8 @@ def main():
     if not options.openhrp_home:
         raise Exception("openhrphome option is mandatory. Please specify one!")
 
-    if options.output == "ROOT/Makefile":
-        options.output = os.path.join(options.root, "Makefile")
+    if options.output == "SRC_ROOT/Makefile":
+        options.output = os.path.join(options.src_root, "Makefile")
 
     options.list = options.list.replace("\.py","")
 
@@ -71,8 +76,12 @@ def main():
     global_vars = cfgs.global_vars
     cmake_opts  = cfgs.cmake_opts
     pkgs        = cfgs.pkgs
+    if not options.build_root:
+        options.build_root = options.src_root
 
-    global_vars['ROOT'] = options.root
+
+    global_vars['SRC_ROOT'] = options.src_root
+    global_vars['BUILD_ROOT'] = options.build_root
     global_vars['INSTALL_PREFIX'] = options.prefix
     global_vars['BOOST_ROOT'] = options.boost_root
     global_vars['OPENHRP3_HOME'] = options.openhrp_home
@@ -98,7 +107,7 @@ def main():
     s += 2*"\n"
 
     for action in ("checkout", "pull", "clean",
-                   "very_clean", "update"):
+                   "very_clean", "update", "info"):
 
         s += "%s:\\\n"%action
         for i,pkg in enumerate(pkgs):
@@ -113,55 +122,77 @@ def main():
         gituri = "%s/%s"%(pkg[1],name)
         branch = pkg[2]
         s += """%s:
-\tcd ${ROOT}/%s/_build; make install
+\tcd ${BUILD_ROOT}/%s/_build; make install
 """%(alpha_name, name)
-
         cmake_opt = ""
         for key, value in cmake_opts.items():
             if re.match(r"%s"%key, name):
                 cmake_opt += "%s "%value
+        subs = { 'name' : name, 
+                 'alpha_name' : alpha_name, 
+                 'gituri' : gituri, 
+                 'branch' : branch, 
+                 'cmake_opt' : cmake_opt,
+                 }
 
         # checkout
         if branch != 'master':
-            s += """%s_checkout:
-\tcd ${ROOT}; git clone --recursive %s; \\
-\tcd ${ROOT}/%s; \\
-\tgit checkout -b %s origin/%s
-"""%(alpha_name, gituri, name, branch, branch)
+            s += """%(alpha_name)s_checkout:
+\tcd ${SRC_ROOT}; git clone --recursive %(gituri)s; \\
+\tcd ${SRC_ROOT}/%(name)s; \\
+\tgit checkout -b %(branch)s origin/%(branch)s
+"""%subs
         else:
-            s += """%s_checkout:
-\tcd ${ROOT}; git clone --recursive %s
-"""%(alpha_name, gituri)
+            s += """%(alpha_name)s_checkout:
+\tcd ${SRC_ROOT}; git clone --recursive %(gituri)s
+"""%subs
 
         # pull
-        s += """%s_pull:
-\tcd ${ROOT}/%s/  && git pull && git submodule update
-"""%(alpha_name, name)
+        s += """%(alpha_name)s_pull:
+\tcd ${SRC_ROOT}/%(name)s/  && git pull && git submodule update
+"""%subs
 
         # configure
-        s += """%s_configure:
-\tmkdir -p ${ROOT}/%s/_build
-\tcd ${ROOT}/%s/_build && cmake %s ..
-"""%(alpha_name, name, name, cmake_opt)
+        s += """%(alpha_name)s_configure:
+\tmkdir -p ${BUILD_ROOT}/%(name)s/_build
+\tcd ${BUILD_ROOT}/%(name)s/_build && cmake %(cmake_opt)s ${SRC_ROOT}/%(name)s
+"""%subs
 
         # clean
-        s += """%s_clean:
-\tcd ${ROOT}/%s/_build && make clean
-"""%(alpha_name, name)
+        s += """%(alpha_name)s_clean:
+\tcd ${BUILD_ROOT}/%(name)s/_build && make clean
+"""%subs
+
+        # info
+        s += """%(alpha_name)s_info:
+\tcd ${SRC_ROOT}/%(name)s/ &&\\
+    branch=`git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \\(.*\)/\\1/'`;\\
+    commit=`git rev-parse HEAD` ;\\
+    diff=0;\\
+    head_orig=`git rev-list ^HEAD origin/$$branch | wc -l`;\\
+    if [ $$head_orig -gt 0 ]; then\\
+        diff=-$$head_orig ;\\
+    else\\
+        orig_head=`git rev-list ^origin/$$branch HEAD | wc -l`;\\
+        if [ $$head_orig -gt 0 ]; then\\
+            diff=+$$head_orig ;\\
+        fi;\\
+    fi;\\
+    printf "%%-25s %%-15s %%s %%s\\n" %(name)s $$branch $$commit $$diff
+"""%subs
+
 
         # very_clean
-        s += """%s_very_clean:
-\tcd ${ROOT}/%s/_build && rm -rf *
-"""%(alpha_name, name)
+        s += """%(alpha_name)s_very_clean:
+\tcd ${BUILD_ROOT}/%(name)s/_build && rm -rf *
+"""%subs
 
         # update
-        s += """%s_update:
-\tcd ${ROOT}/%s/_build; git diff --quiet %s ..origin/%s -- || (git pull && make install)
-"""%(alpha_name, name, branch, branch)
-
+        s += """%(alpha_name)s_update:
+\tcd ${SRC_ROOT}/%(name)s; git diff --quiet %(branch)s origin/%(branch)s -- || \\
+\t(git pull && cd ${BUILD_ROOT}/%(name)s/_build && make install)
+"""%subs
         s += 1*"\n"
-
-
 
     f = open(options.output,"w")
     f.write(s)
