@@ -45,7 +45,7 @@ def main():
     parser.add_option("-l", "--package-list",
                       action="store", type="str",
                       dest="list", default="sotpylist",
-                      help="package list, default : sotpyist")
+                      help="package list, default : sotpylist")
 
     parser.add_option("-b", "--boost-root",
                       action="store", type="str",
@@ -69,7 +69,7 @@ def main():
     if options.output == "SRC_ROOT/Makefile":
         options.output = os.path.join(options.src_root, "Makefile")
 
-    options.list = options.list.replace("\.py","")
+    options.list = options.list.replace(".py","")
 
     cfgs = __import__(options.list)
 
