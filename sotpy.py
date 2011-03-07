@@ -12,6 +12,7 @@ cmake_opts = { ".*" : "-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} "+
                "-DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=Debug",
                "sot-.*": "-DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99",
                "dynamic-graph*": "-DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99",
+               "sot-openhrp":"-DOPENHRP3_HOME=${OPENHRP3_HOME} -DOPENHRP_HOME=${OPENHRP3_HOME}",
                "jrl-mal" : "-DSMALLMATRIX=jrl-mathtools"
                }
 
@@ -30,5 +31,6 @@ pkgs = [ ('jrl-mathtools',            '${GITJRL}',         'master'),
          ('hrp2_14',                  '${GITSOFTS}',       'master'),
          ('sot-dynamic',              '${GITJRL}',         'topic/python'),
          ('sot-openhrp',              '${GITJRL}',         'topic/python'),
-         ('dynamic-graph-tutorial' ,  '${GITJRL}',         'master'),
+         ('sot-motion-planner',       'git://github.com/thomas-moulard/', 'master'),
+#         ('dynamic-graph-tutorial' ,  '${GITJRL}',         'master'),
          ]
