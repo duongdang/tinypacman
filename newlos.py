@@ -18,11 +18,11 @@ cmake_opts = { ".*" : "-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} "+
 
 autotools_opts = { ".*":"--prefix=${INSTALL_PREFIX}"}
 
-pkgs = [  #('jrl-mathtools',            '${GITJRL}',         'master'),
-          #('jrl-mal' ,                 '${GITJRL}',         'master'),
-          #('abstract-robot-dynamics',  '${GITLAAS}',        'master'),          
-          #('hrp2Dynamics',             '${GITSOFTS}',       'master'),
-          #('jrl-dynamics',             '${GITJRL}',         'master'),
+pkgs = [  ('jrl-mathtools',            '${GITJRL}',         'master'),
+          ('jrl-mal' ,                 '${GITJRL}',         'master'),
+          ('abstract-robot-dynamics',  '${GITLAAS}',        'master'),          
+          ('jrl-dynamics',             '${GITJRL}',         'master'),
+          ('hrp2Dynamics',             '${GITSOFTS}',       'master'),
           ('hpp-template-corba',       '${GITLAAS}',        'master'),
           ('jrlCIR-giktask',           '${GITSOFTS}',       'master','autotools'),
           ('hpp-gik',                  '${GITLAAS}',  'master','cmake'),

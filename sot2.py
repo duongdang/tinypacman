@@ -12,7 +12,8 @@ cmake_opts = { ".*" : "-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} "+
                "-DBOOST_ROOT=${BOOST_ROOT} -DCMAKE_BUILD_TYPE=Debug",
                "sot-.*": "-DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99",
                "dynamic-graph*": "-DCMAKE_VERBOSITY_LEVEL=100 -DPROJECT_VERSION=1.99",
-               "jrl-mal" : "-DSMALLMATRIX=jrl-mathtools"
+               "jrl-mal" : "-DSMALLMATRIX=jrl-mathtools",
+               "sot-openhrp":"-DOPENHRP3_HOME=${OPENHRP3_HOME} -DOPENHRP_HOME=${OPENHRP3_HOME} -DHRP_ROBOT_SPEC=HRP2LAAS",
                }
 
 pkgs = [ ('jrl-mathtools',            '${GITJRL}',         'master'),
@@ -28,6 +29,8 @@ pkgs = [ ('jrl-mathtools',            '${GITJRL}',         'master'),
          ('hrp2-10-optimized',        '${GITSOFTS}/robots','master'),
          ('hrp2_14',                  '${GITSOFTS}',       'master'),
          ('sot-dynamic',              '${GITJRL}',         'master'),
+         ('jrl-walkgen',              '${GITJRL}',         'master'),
+         ('sot-pattern-generator',              '${GITJRL}',         'master'),
          ('sot-openhrp',              '${GITJRL}',         'master'),
          ('sot-openhrp-scripts',              '${GITJRL}',         'master'),
          ]
